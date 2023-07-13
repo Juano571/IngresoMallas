@@ -187,17 +187,17 @@ export default function StickyHeadTable() {
         }
     }
 
-    // const addValuesAndInput = (row: Data, value: string | number) => {
-    //     columns.map((column) => {
-    //         if (column.id === 'cantidad') {
-    //             <input type='text' />
-    //         } else {
-    //             column.format && typeof value === 'number'
-    //                 ? column.format(value)
-    //                 : value
-    //         }
-    //     })
-    // }
+    const addValuesAndInput = (row: Data, value: string | number) => {
+        columns.map((column) => {
+            if (column.id === 'cantidad') {
+                <input type='text' />
+            } else {
+                column.format && typeof value === 'number'
+                    ? column.format(value)
+                    : value
+            }
+        })
+    }
 
 
     return (
