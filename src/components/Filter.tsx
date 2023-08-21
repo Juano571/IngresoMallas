@@ -4,9 +4,10 @@ interface FilterProps {
     options: string[]
     setFilters: (filters: string[]) => void
     filters: string[]
+    style: string
 }
 
-const Filter: React.FC<FilterProps> = ({ options, setFilters, filters }) => {
+const Filter: React.FC<FilterProps> = ({ options, setFilters, filters, style }) => {
 
     //Funcion para obtener los filtros que se han seleccionado
     const handleFilters = (e: React.ChangeEvent<HTMLInputElement>) =>{
@@ -18,9 +19,14 @@ const Filter: React.FC<FilterProps> = ({ options, setFilters, filters }) => {
             setFilters([...filters, e.target.value]);
         }
     }
+
+    // const handleFiltersSearch = () => {
+        
+    // }
     return (
         //Caja de filtros
-        <div className='absolute bg-gray-200 text-black py-2 px-4 top-5 left-20 '>
+        <div className = {style}>
+            <input type='text' className='rounded-md' placeholder='Buscar'/>
             {options.map((option)=>(
                 <div key={option} className='flex gap-3 items-center justify-between'>
                 <label htmlFor={option}>{option}</label>

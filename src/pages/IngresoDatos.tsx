@@ -1,13 +1,10 @@
-import React from 'react'
-import Header from './Header'
-import StickyHeadTable from './TableDataEntry'
+import TableDataEntry from '../components/TablaIngresoDatos'
 import { AiFillSave, AiFillDelete } from "react-icons/ai";
 
 const IngresoDatos: React.FC = () => {
     return (
         <>
-            <Header activeSection1={true} activeSection2={false} activeSection3={false} />
-            <div className='relative top-16 flex ml-10 gap-6'>
+            <div className='relative top-32 left-20 flex gap-6'>
                 <button className='bg-gray-800 text-white font-normal px-4 py-2 rounded-lg flex items-center gap-2' onClick={(e) => { }}>
                     <AiFillSave />
                     Guardar
@@ -22,10 +19,9 @@ const IngresoDatos: React.FC = () => {
                 </button>
             </div>
 
-            <div className='relative top-32 flex justify-center align-middle'>
-                <StickyHeadTable />
+            <div className='relative top-48 flex justify-center align-middle'>
+                <TableDataEntry />
             </div>
-
 
         </>
     )
