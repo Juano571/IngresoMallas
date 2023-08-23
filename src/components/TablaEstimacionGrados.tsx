@@ -113,15 +113,23 @@ function createData(
     estimacion_ramos_grados: string,
     estimacion_tallos_grados: string,
 ): Data {
-    return { codigo_cpr: codigo_cpr, producto: producto, variedad: variedad, tallos_por_bunch: tallos_por_bunch, factor_porcentual_3_2: factor_porcentual_3_2, fecha: fecha, estimacion_ramos_grados: estimacion_ramos_grados, estimacion_tallos_grados: estimacion_tallos_grados, id: generateUniqueId() };
+    return { codigo_cpr: codigo_cpr, 
+            producto: producto, 
+            variedad: variedad, 
+            tallos_por_bunch: tallos_por_bunch, 
+            factor_porcentual_3_2: factor_porcentual_3_2, 
+            fecha: fecha, 
+            estimacion_ramos_grados: estimacion_ramos_grados, 
+            estimacion_tallos_grados: estimacion_tallos_grados, 
+            id: generateUniqueId() };
 }
 
 
 const rowsData: Data[] = [];
+let isFull: boolean = false;
 
 
 export default function TableDataEntry() {
-
 
     //UseState para data del  backend
     const [rows, setRows] = React.useState(rowsData);
@@ -129,19 +137,20 @@ export default function TableDataEntry() {
 
     //Conexión con el servidor backend
     React.useEffect(() => {
-
         //Get de datos para la tabla ingreso datos
-        fetch("http://localhost:3000/tableEstimacionGrados")
-            .then((res) => res.json())
-            .then((response) => setData(response))
+        if (isFull === false) {
+            fetch("http://localhost:3000/tableEstimacionGrados")
+                .then((res) => res.json())
+                .then((response) => setData(response))
+            isFull = true
+        }
     }, [])
 
     //Manejo del arreglo de datos de los input
-    const { dataContext } = useDataContext();
+    const { dataInputContext } = useDataContext();
 
     //Funcion para calcular la estimacion ramos grado
-    const calcularEstimacionRamosGrado = (concatenacionEG: string, tallosMalla: string, factorPorcentual: string, tallosBunch: string): string => {
-        let cantidad = dataContext.find((element) => element.concatenacion === concatenacionEG)?.value;
+    const calcularEstimacionRamosGrado = (cantidad: string, tallosMalla: string, factorPorcentual: string, tallosBunch: string): string => {
         if (cantidad === undefined) {
             cantidad = '0';
         }
@@ -161,30 +170,44 @@ export default function TableDataEntry() {
     }
 
     //Agregar los valores obtenidos del get a un arreglo
-
     const setRowSData = () => {
         if (rowsData.length === 0) {
             data.map((element) => {
+
                 const fechaNormal: string = element['Fecha'];
                 const fechaPartes: string[] = fechaNormal.split('T');
-                let estimacionRamos: string = calcularEstimacionRamosGrado(
-                    `${element['SKU_PV']}${fechaPartes[0]}`,
+
+                const cantidad = dataInputContext.find((contextElement) => contextElement.concatenacion === `${element['SKU_PV']}${fechaPartes[0]}`)?.value || '0';
+                
+                const estimacionRamos: string = calcularEstimacionRamosGrado(
+                    cantidad,
                     element['Tallos_por_Malla'],
                     element['Factor_Porcentual_3_2'],
                     element['Tallos_por_Bunch']);
 
-                let estimacionTallos: string = calcularEstimacionTallosGrados(estimacionRamos, element['Tallos_por_Bunch']);
+                const estimacionTallos: string = calcularEstimacionTallosGrados(estimacionRamos, element['Tallos_por_Bunch']);
 
-                rowsData.push(createData(element['CODIGO_CPR'], element['Producto'], element['Variedad'], element['Tallos_por_Bunch'], element['Factor_Porcentual_3_2'], fechaPartes[0], estimacionRamos, estimacionTallos))
+                rowsData.push(
+                    createData(
+                        element['CODIGO_CPR'], 
+                        element['Producto'], 
+                        element['Variedad'], 
+                        element['Tallos_por_Bunch'], 
+                        element['Factor_Porcentual_3_2'], 
+                        fechaPartes[0], 
+                        estimacionRamos, 
+                        estimacionTallos))
             })
         }
     }
+    
+    setRowSData();
 
-    setRowSData()
- 
+    const actualizarTabla = () => {
+        
+    }
 
-
-
+    actualizarTabla();
 
     //useStates utilizados para el manejo de páginas
     const [page, setPage] = React.useState(0);
@@ -297,7 +320,7 @@ export default function TableDataEntry() {
         }
     })
 
-    newRows = rows.filter((row) => {
+    newRows = newRows.filter((row) => {
         if (filtersProducto.length === 0) {
             return row
         }

@@ -1,7 +1,6 @@
-import { useContext} from "react"
-import {DataInputContext, InputContextProps} from '../context/DataInputContext';
+import { useContext } from "react"
+import { DataContext, ContextProps } from '../context/DataContext';
 
 export const useDataContext = () => {
-    return useContext(DataInputContext) as InputContextProps
+    return useContext(DataContext) as ContextProps
 }
-

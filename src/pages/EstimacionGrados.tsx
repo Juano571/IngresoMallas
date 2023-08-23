@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import TablaEstimacionGrados from '../components/TablaEstimacionGrados';
 
 const EstimacionGrados: React.FC = () => {

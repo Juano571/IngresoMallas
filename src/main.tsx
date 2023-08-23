@@ -3,14 +3,14 @@ import ReactDOM from 'react-dom/client'
 import './index.css'
 import { BrowserRouter } from 'react-router-dom';
 import App from './App.tsx'
-import { DataInputContextProvider } from './context/DataInputContext.tsx'
+import { DataContextProvider } from './context/DataContext.tsx'
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <BrowserRouter>
-      <DataInputContextProvider>
-        <App />
-      </DataInputContextProvider>
+      <DataContextProvider>
+          <App />
+      </DataContextProvider>
     </BrowserRouter>
   </React.StrictMode>,
 ) 

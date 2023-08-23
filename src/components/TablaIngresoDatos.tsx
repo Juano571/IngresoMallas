@@ -10,7 +10,7 @@ import TableRow from '@mui/material/TableRow';
 import { AiFillCaretDown } from "react-icons/ai";
 import Filter from './Filter'
 import { v4 as uuidv4 } from 'uuid';
-import { CurrentValue } from '../context/DataInputContext';
+import { CurrentValue } from '../context/DataContext';
 import { useDataContext } from '../hooks/useDataContext';
 
 //Interfaz para definir los campos de la columna
@@ -75,6 +75,7 @@ function createData(
 
 
 const rowsData: Data[] = [];
+let isFull: boolean = false;
 
 export default function TableDataEntry() {
 
@@ -82,13 +83,16 @@ export default function TableDataEntry() {
     const [rows, setRows] = React.useState(rowsData);
     const [data, setData] = React.useState([])
 
+
     //Conexión con el servidor backend
     React.useEffect(() => {
-
         //Get de datos para la tabla ingreso datos
-        fetch("http://localhost:3000/tableIngresoDatos")
-            .then((res) => res.json())
-            .then((response) => setData(response))
+        if (isFull === false) {
+            fetch("http://localhost:3000/tableIngresoDatos")
+                .then((res) => res.json())
+                .then((response) => setData(response))
+            isFull = true
+        }
     }, [])
 
     //Agregar los valores obtenidos de la conexion con el backend a un arreglo
@@ -219,7 +223,7 @@ export default function TableDataEntry() {
     }
 
     // Manejo del arreglo de datos de los input
-    const { dataContext, setDataContext } = useDataContext();
+    const { dataInputContext: dataContext, setDataInputContext: setDataContext } = useDataContext();
 
     //Funcion para obtener el valor de un input
     const handleInputChange = (id: string, event: React.ChangeEvent<HTMLInputElement>, concatenacion: string) => {
@@ -260,7 +264,7 @@ export default function TableDataEntry() {
         const elemento = dataContext.find((element) => element.id === id)
         return elemento?.value
     }
-
+    
     return (
         <Paper sx={{ width: '90%', overflow: 'hidden' }}>
             <TableContainer sx={{ maxHeight: 450, minHeight: 600 }}>
@@ -306,9 +310,9 @@ export default function TableDataEntry() {
                                                 } else {
                                                     return (
                                                         <TableCell key={column.id} align={column.align}>
-                                                            <input id={row.id} className='border border-gray-800 rounded-lg w-36 h-6 text-center' type='number' placeholder='Ingresar cantidad' onChange={(e) => {
+                                                            <input id={row.id} className='border border-gray-800 rounded-lg w-36 h-6 text-center' type='number' placeholder={handleValueInput(row.id)} onChange={(e) => {
                                                                 handleInputChange(row.id, e, row.concatenacion)
-                                                            }} value={handleValueInput(row.id)}/>
+                                                            }}/>
                                                         </TableCell>
                                                     );
                                                 }
