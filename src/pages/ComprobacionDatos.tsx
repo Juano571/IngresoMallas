@@ -5,7 +5,7 @@ const ComprobacionDatos: React.FC = () => {
     return (
         <>
             <div className='relative top-24 flex justify-center align-middle'>
-                {/* <TablaComprobacionDatos /> */}
+                <TablaComprobacionDatos />
             </div>
         </>
     )

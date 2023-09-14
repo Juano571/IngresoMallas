@@ -11,6 +11,7 @@ import { AiFillCaretDown } from "react-icons/ai";
 import Filter from './Filter';
 import { v4 as uuidv4 } from 'uuid';
 import { useDataContext } from '../hooks/useDataContext';
+import { Data, DataEstimacion } from '../context/DataContext'
 
 //Interfaz para definir los campos de la columna
 interface Column {
@@ -77,32 +78,6 @@ const generateUniqueId = (): string => {
     return uuidv4();
 }
 
-//Obtener los datos de Ingreso Datos
-// const calcularEstimacionRamosGrados = (codigo_cpr:string): number => {
-//     let cantidad:string = dataContext.map((element)=> {
-//         if(element.id == codigo_cpr){
-//             return element.value
-//         }else{
-//             return 0;
-//         }
-//     })
-//     return 0;
-// }
-
-
-//Definición de los datos que va a aceptar el arreglo rowsData
-interface Data {
-    codigo_cpr: string;
-    producto: string;
-    variedad: string;
-    tallos_por_bunch: number;
-    factor_porcentual_3_2: number;
-    fecha: string;
-    estimacion_ramos_grados: string;
-    estimacion_tallos_grados: string;
-    id: string;
-}
-
 function createData(
     codigo_cpr: string,
     producto: string,
@@ -113,19 +88,45 @@ function createData(
     estimacion_ramos_grados: string,
     estimacion_tallos_grados: string,
 ): Data {
-    return { codigo_cpr: codigo_cpr, 
-            producto: producto, 
-            variedad: variedad, 
-            tallos_por_bunch: tallos_por_bunch, 
-            factor_porcentual_3_2: factor_porcentual_3_2, 
-            fecha: fecha, 
-            estimacion_ramos_grados: estimacion_ramos_grados, 
-            estimacion_tallos_grados: estimacion_tallos_grados, 
-            id: generateUniqueId() };
+    return {
+        codigo_cpr: codigo_cpr,
+        producto: producto,
+        variedad: variedad,
+        tallos_por_bunch: tallos_por_bunch,
+        factor_porcentual_3_2: factor_porcentual_3_2,
+        fecha: fecha,
+        estimacion_ramos_grados: estimacion_ramos_grados,
+        estimacion_tallos_grados: estimacion_tallos_grados,
+        id: generateUniqueId()
+    };
 }
 
+function moveDataEstimacionGrados(
+    sku_pv: string,
+    sku_pv_ventas: string,
+    grados: string,
+    estimacion_ramos_grados: string,
+    estimacion_tallos_grados: string,
+    codigo_cpr: string,
+    fecha1TPO: string,
+    fechaTPO: string,
+    cantidadTPO: string,
+): DataEstimacion {
+    return {
+        sku_pv: sku_pv,
+        sku_pv_ventas: sku_pv_ventas,
+        grados: grados,
+        estimacion_ramos_grados: estimacion_ramos_grados,
+        estimacion_tallos_grados: estimacion_tallos_grados,
+        codigo_cpr: codigo_cpr,
+        fecha1TPO: fecha1TPO,
+        fechaTPO: fechaTPO,
+        cantidadTPO: cantidadTPO,
+    }
+}
 
 const rowsData: Data[] = [];
+const rowsCalculatedValues: DataEstimacion[] = [];
 let isFull: boolean = false;
 
 
@@ -147,10 +148,11 @@ export default function TableDataEntry() {
     }, [])
 
     //Manejo del arreglo de datos de los input
-    const { dataInputContext } = useDataContext();
+    const { dataInputContext, setDataEstimacionGradosContext } = useDataContext();
 
     //Funcion para calcular la estimacion ramos grado
     const calcularEstimacionRamosGrado = (cantidad: string, tallosMalla: string, factorPorcentual: string, tallosBunch: string): string => {
+
         if (cantidad === undefined) {
             cantidad = '0';
         }
@@ -158,8 +160,8 @@ export default function TableDataEntry() {
         if (tallosMalla === null) {
             tallosMalla = '0'
         }
-
-        const valorEstimacionRamos: number = Math.ceil((((parseInt(cantidad) * parseInt(tallosMalla)) * parseFloat(factorPorcentual)) / parseInt(tallosBunch)) * 0.9);
+        
+        const valorEstimacionRamos: number = Math.round((((parseInt(cantidad) * parseInt(tallosMalla)) * parseFloat(factorPorcentual)) / parseInt(tallosBunch)) * 0.9);
 
         return valorEstimacionRamos.toString();
     }
@@ -178,7 +180,7 @@ export default function TableDataEntry() {
                 const fechaPartes: string[] = fechaNormal.split('T');
 
                 const cantidad = dataInputContext.find((contextElement) => contextElement.concatenacion === `${element['SKU_PV']}${fechaPartes[0]}`)?.value || '0';
-                
+
                 const estimacionRamos: string = calcularEstimacionRamosGrado(
                     cantidad,
                     element['Tallos_por_Malla'],
@@ -187,27 +189,35 @@ export default function TableDataEntry() {
 
                 const estimacionTallos: string = calcularEstimacionTallosGrados(estimacionRamos, element['Tallos_por_Bunch']);
 
+                rowsCalculatedValues.push(
+                    moveDataEstimacionGrados(
+                        element['SKU_PV'],
+                        element['SKU_PV_VENTAS'], 
+                        element['Grados'], 
+                        estimacionRamos, 
+                        estimacionTallos,
+                        element['CODIGO_CPR'],
+                        fechaPartes[0],
+                        fechaPartes[0],
+                        cantidad))
+
                 rowsData.push(
                     createData(
-                        element['CODIGO_CPR'], 
-                        element['Producto'], 
-                        element['Variedad'], 
-                        element['Tallos_por_Bunch'], 
-                        element['Factor_Porcentual_3_2'], 
-                        fechaPartes[0], 
-                        estimacionRamos, 
+                        element['CODIGO_CPR'],
+                        element['Producto'],
+                        element['Variedad'],
+                        element['Tallos_por_Bunch'],
+                        element['Factor_Porcentual_3_2'],
+                        fechaPartes[0],
+                        estimacionRamos,
                         estimacionTallos))
             })
         }
     }
-    
+
+
     setRowSData();
-
-    const actualizarTabla = () => {
-        
-    }
-
-    actualizarTabla();
+    setDataEstimacionGradosContext(rowsCalculatedValues);
 
     //useStates utilizados para el manejo de páginas
     const [page, setPage] = React.useState(0);

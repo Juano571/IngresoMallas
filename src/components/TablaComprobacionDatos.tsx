@@ -7,11 +7,9 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
-import { AiFillCaretDown } from "react-icons/ai";
-import Filter from './Filter'
 import { v4 as uuidv4 } from 'uuid';
-import { CurrentValue } from '../context/DataContext';
 import { useDataContext } from '../hooks/useDataContext';
+import { DataEstimacion } from '../context/DataContext'
 
 //Interfaz para definir los campos de la columna
 interface Column {
@@ -317,137 +315,102 @@ const arrayProduct: string[] = [
 
 ];
 
-
-let isFull: boolean = false;
-
 export default function TableDataEntry() {
 
     //useStates
     const [rows, setRows] = React.useState(rowsData);
-    const [data, setData] = React.useState([])
+    const [data, setData] = React.useState<DataEstimacion[]>([]);
 
 
 
-    //Conexión con el servidor backend
-    // React.useEffect(() => {
-    //     //Get de datos para la tabla ingreso datos
-    //     if (isFull === false) {
-    //         fetch("http://localhost:3000/tableIngresoDatos")
-    //             .then((res) => res.json())
-    //             .then((response) => setData(response))
-    //         isFull = true
-    //     }
-    // }, [])
+    // Manejo del arreglo de datos de los input
+    const { dataEstimacionGradosContext } = useDataContext();
+
+    //Filtrar datos para ingreso en la tabla
+    const filter = (sku_pv_ventas: string) => {
+        const dataFilter = dataEstimacionGradosContext.filter((element) => element.sku_pv_ventas === sku_pv_ventas && element.estimacion_ramos_grados !== '0')
+        return dataFilter
+    }
 
     //Agregar los valores obtenidos de la conexion con el backend a un arreglo
     const setRowSData = () => {
         if (rowsData.length === 0) {
             arrayProduct.map((element) => {
-                rowsData.push(createData(element, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
+                const dataFilter = filter(element);
+                let total: number = 0;
+                let veinte: number = 0;
+                let cuarenta: number = 0;
+                let cincuenta: number = 0;
+                let cincuentaCinco: number = 0;
+                let sesenta: number = 0;
+                let setenta: number = 0;
+                let setentaCinco: number = 0;
+                let ochenta: number = 0;
+                let ochentaCinco: number = 0;
+                let noventa: number = 0;
+                let cien: number = 0;
+                let cientoDiez: number = 0;
+                let cientoVeinte: number = 0;
+                let cientoTreinta: number = 0;
+                dataFilter.map((dato) => {
+                    switch (dato.grados) {
+                        case '20':
+                            veinte += parseInt(dato.estimacion_ramos_grados);
+                            break;
+                        case '40':
+                            cuarenta += parseInt(dato.estimacion_ramos_grados);
+                            break;
+                        case '50':
+                            cincuenta += parseInt(dato.estimacion_ramos_grados);
+                            break;
+                        case '55':
+                            cincuentaCinco += parseInt(dato.estimacion_ramos_grados);
+                            break;
+                        case '60':
+                            sesenta += parseInt(dato.estimacion_ramos_grados);
+                            break;
+                        case '70':
+                            setenta += parseInt(dato.estimacion_ramos_grados);
+                            break;
+                        case '75':
+                            setentaCinco += parseInt(dato.estimacion_ramos_grados);
+                            break;
+                        case '80':
+                            ochenta += parseInt(dato.estimacion_ramos_grados);
+                            break;
+                        case '85':
+                            ochentaCinco += parseInt(dato.estimacion_ramos_grados);
+                            break;
+                        case '90':
+                            noventa += parseInt(dato.estimacion_ramos_grados);
+                            break;
+                        case '100':
+                            cien += parseInt(dato.estimacion_ramos_grados);
+                            break;
+                        case '110':
+                            cientoDiez += parseInt(dato.estimacion_ramos_grados);
+                            break;
+                        case '120':
+                            cientoVeinte += parseInt(dato.estimacion_ramos_grados);
+                            break;
+                        case '130':
+                            cientoTreinta += parseInt(dato.estimacion_ramos_grados);
+                            break;
+                        default:
+                            break;
+                    }
+                    total = veinte + cuarenta + cincuenta + cincuentaCinco + sesenta + sesenta + setenta + setentaCinco + ochenta + ochentaCinco + noventa + cien + cientoDiez + cientoVeinte + cientoTreinta;
+                })
+                rowsData.push(createData(element, veinte, cuarenta, cincuenta, cincuentaCinco, sesenta, setenta, setentaCinco, ochenta, ochentaCinco, noventa, cien, cientoDiez, cientoVeinte, cientoTreinta, total))
             })
         }
     }
+
     setRowSData()
 
     //useStates utilizados para el manejo de páginas
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
-
-    //useState utilizado para manejar la etiqueta seleccionada para el filtro
-    const [labelSelected, setLabelSelected] = React.useState('');
-
-    // //useState para el manejo de filtros
-    // const [filters, setFilters] = React.useState<string[]>([]);
-    // const [filtersProducto, setFiltersProducto] = React.useState<string[]>([]);
-    // const [filtersVariedad, setFiltersVariedad] = React.useState<string[]>([]);
-    // const [filtersFecha, setFiltersFecha] = React.useState<string[]>([]);
-    // const [filtersCantidad, setFiltersCantidad] = React.useState<string[]>([]);
-
-    //useState para el manejo de los valores que se ingresan en cantidad
-    //const [dataContext, setDataContext] = React.useState<CurrentValue[]>([])
-
-
-
-    //Funcion para obtener los valores de cada comlumna para poner los en el filtro
-    // const getOptions = (label: string) => {
-    //     let index: number = columns.findIndex((column) => column.label === label);
-    //     switch (index) {
-    //         case 0:
-    //             const productosUnicos = new Set(rows.map((row) => row.producto))
-    //             const productosUnicosArreglo: string[] = []
-    //             productosUnicos.forEach((productoUnico) => productosUnicosArreglo.push(productoUnico))
-    //             return productosUnicosArreglo
-    //         case 1:
-    //             const variedadesUnicas = new Set(rows.map((row) => row.variedad))
-    //             const variedadesUnicasArreglo: string[] = []
-    //             variedadesUnicas.forEach((variedadUnica) => variedadesUnicasArreglo.push(variedadUnica))
-    //             return variedadesUnicasArreglo
-    //         case 2:
-    //             const fechasUnicas = new Set(rows.map((row) => row.fecha))
-    //             const fechasUnicasArreglo: string[] = []
-    //             fechasUnicas.forEach((fechaUnica) => fechasUnicasArreglo.push(fechaUnica))
-    //             return fechasUnicasArreglo
-    //         case 3:
-    //             // const cantidadesUnicas = new Set(rows.map((row) => row.cantidad))
-    //             // const cantidadesUnicasArreglo: string[] = []
-    //             // cantidadesUnicas.forEach((cantidadUnica) => cantidadesUnicasArreglo.push(cantidadUnica.toString()))
-    //             // return cantidadesUnicasArreglo
-    //             return []
-    //         default:
-    //             return []
-    //     }
-    // }
-
-    // React.useEffect(() => {
-
-    //     if (filters.length === 0) {
-    //         setFiltersProducto([]);
-    //         setFiltersVariedad([]);
-    //         setFiltersFecha([]);
-    //         setFiltersCantidad([]);
-    //         return
-    //     }
-
-    //     const opcionesProducto = getOptions("Producto")
-    //     const opcionesVariedad = getOptions("Variedad")
-    //     const opcionesFecha = getOptions("Fecha")
-    //     const opcionesCantidad = getOptions("Cantidad")
-
-    //     setFiltersProducto(filters.filter(filtro => opcionesProducto.includes(filtro)))
-    //     setFiltersVariedad(filters.filter(filtro => opcionesVariedad.includes(filtro)))
-    //     setFiltersFecha(filters.filter(filtro => opcionesFecha.includes(filtro)))
-    //     setFiltersCantidad(filters.filter(filtro => opcionesCantidad.includes(filtro)))
-    // }, [filters])
-
-
-    //Maneja los datos que se muestran en la tabla con el filtro
-    // let newRows = rows.filter((row) => {
-    //     if (filtersProducto.length === 0) {
-    //         return row
-    //     }
-    //     return filtersProducto.includes(row.producto)
-    // })
-
-    // newRows = newRows.filter((row) => {
-    //     if (filtersVariedad.length === 0) {
-    //         return row
-    //     }
-    //     return filtersVariedad.includes(row.variedad)
-    // })
-
-    // newRows = newRows.filter((row) => {
-    //     if (filtersFecha.length === 0) {
-    //         return row
-    //     }
-    //     return filtersFecha.includes(row.fecha)
-    // })
-
-    // newRows = newRows.filter((row) => {
-    //     if (filtersCantidad.length === 0) {
-    //         return row
-    //     }
-    //     return filtersCantidad.includes(row.cantidad.toString())
-    // })
 
     const handleChangePage = (event: unknown, newPage: number) => {
         setPage(newPage);
@@ -457,57 +420,6 @@ export default function TableDataEntry() {
         setRowsPerPage(+event.target.value);
         setPage(0);
     };
-
-    //Se obtiene el label de la columna seleccionada y se cambia el valor del labelSelected
-    const handleShowFilter = (label: string) => {
-        if (label === labelSelected) {
-            return setLabelSelected('');
-        }
-        setLabelSelected(label);
-    }
-
-    // Manejo del arreglo de datos de los input
-    const { dataInputContext: dataContext, setDataInputContext: setDataContext } = useDataContext();
-
-    //Funcion para obtener el valor de un input
-    const handleInputChange = (id: string, event: React.ChangeEvent<HTMLInputElement>, concatenacion: string) => {
-        let value: string = event.target.value
-        if (id !== '' && value !== '' && concatenacion !== '') {
-            handleAddValue(id, value, concatenacion);
-        }
-
-        if (value === '') {
-            let newInputValues: CurrentValue[] = dataContext.filter((element) => element.id !== id);
-            setDataContext(newInputValues);
-        }
-    }
-
-    //Funcion para agregar valores al arreglo de InputValues
-    const handleAddValue = (id: string, value: string, concatenacion: string) => {
-        let newInputValues: CurrentValue[];
-        if (dataContext.length !== 0) {
-            if (dataContext.some((item) => item.id === id)) {
-                newInputValues = dataContext.map((element) => {
-                    if (element.id === id) {
-                        return { id: id, value: value, concatenacion: concatenacion }
-                    } else {
-                        return element
-                    }
-                })
-                setDataContext(newInputValues)
-            } else {
-                setDataContext([...dataContext, { id: id, value: value, concatenacion: concatenacion }]);
-            }
-        } else {
-            setDataContext([{ id: id, value: value, concatenacion: concatenacion }]);
-        }
-    }
-
-    //Funcion para mantener los valores ya agregados al cambiar de pestaña
-    const handleValueInput = (id: string) => {
-        const elemento = dataContext.find((element) => element.id === id)
-        return elemento?.value
-    }
 
     return (
         <Paper sx={{ width: '90%', overflow: 'hidden' }}>
@@ -523,11 +435,6 @@ export default function TableDataEntry() {
                                 >
                                     <div className='flex gap-3 relative justify-center'>
                                         {column.label}
-                                        {/* <button onClick={() => handleShowFilter(column.label)} className='relative'><AiFillCaretDown />
-                                            {labelSelected === column.label && (
-                                                <Filter options={getOptions(labelSelected)} setFilters={setFilters} filters={filters} style='absolute bg-gray-200 text-black py-2 px-4 rounded-lg h-64 overflow-auto' />
-                                            )}
-                                        </button> */}
                                     </div>
                                 </TableCell>
                             ))}
@@ -550,7 +457,6 @@ export default function TableDataEntry() {
                                                                 ? column.format(value)
                                                                 : value}
                                                         </div>
-
                                                     </TableCell>
                                                 );
                                             })}

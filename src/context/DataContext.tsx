@@ -22,11 +22,23 @@ export interface Data {
     id: string;
 }
 
+export interface DataEstimacion {
+    sku_pv: string; 
+    sku_pv_ventas: string;
+    grados: string;
+    estimacion_ramos_grados: string;
+    estimacion_tallos_grados: string;
+    codigo_cpr: string;
+    fecha1TPO: string,
+    fechaTPO: string,
+    cantidadTPO: string,
+}
+
 export interface ContextProps {
     dataInputContext: CurrentValue[],
     setDataInputContext: React.Dispatch<React.SetStateAction<CurrentValue[]>>,
-    dataEstimacionContext: Data[],
-    setDataEstimacionContext: React.Dispatch<React.SetStateAction<Data[]>>
+    dataEstimacionGradosContext: DataEstimacion[],
+    setDataEstimacionGradosContext: React.Dispatch<React.SetStateAction<DataEstimacion[]>>
     
 }
 
@@ -36,14 +48,14 @@ export const DataContext = createContext<ContextProps | null>(null);
 
 export const DataContextProvider = ({ children }: DataContextProviderProps) => {
     const [dataInputContext, setDataInputContext] = useState<CurrentValue[]>([])
-    const [dataEstimacionContext, setDataEstimacionContext] = useState<Data[]>([])
+    const [dataEstimacionGradosContext, setDataEstimacionGradosContext] = useState<DataEstimacion[]>([])
 
     return (
         <DataContext.Provider value={{
             dataInputContext: dataInputContext,
             setDataInputContext: setDataInputContext,
-            dataEstimacionContext: dataEstimacionContext,
-            setDataEstimacionContext: setDataEstimacionContext
+            dataEstimacionGradosContext: dataEstimacionGradosContext,
+            setDataEstimacionGradosContext: setDataEstimacionGradosContext
         }}>
             {children}
         </DataContext.Provider>
