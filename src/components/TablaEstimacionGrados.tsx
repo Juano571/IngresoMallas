@@ -134,7 +134,7 @@ export default function TableDataEntry() {
 
     //UseState para data del  backend
     const [rows, setRows] = React.useState(rowsData);
-    const [data, setData] = React.useState([])
+    const [data, setData] = React.useState([]);
 
     //Conexión con el servidor backend
     React.useEffect(() => {
@@ -160,7 +160,7 @@ export default function TableDataEntry() {
         if (tallosMalla === null) {
             tallosMalla = '0'
         }
-        
+
         const valorEstimacionRamos: number = Math.round((((parseInt(cantidad) * parseInt(tallosMalla)) * parseFloat(factorPorcentual)) / parseInt(tallosBunch)) * 0.9);
 
         return valorEstimacionRamos.toString();
@@ -192,14 +192,14 @@ export default function TableDataEntry() {
                 rowsCalculatedValues.push(
                     moveDataEstimacionGrados(
                         element['SKU_PV'],
-                        element['SKU_PV_VENTAS'], 
-                        element['Grados'], 
-                        estimacionRamos, 
+                        element['SKU_PV_VENTAS'],
+                        element['Grados'],
+                        estimacionRamos,
                         estimacionTallos,
                         element['CODIGO_CPR'],
                         fechaPartes[0],
                         fechaPartes[0],
-                        cantidad))
+                        cantidad));
 
                 rowsData.push(
                     createData(
@@ -210,7 +210,7 @@ export default function TableDataEntry() {
                         element['Factor_Porcentual_3_2'],
                         fechaPartes[0],
                         estimacionRamos,
-                        estimacionTallos))
+                        estimacionTallos));
             })
         }
     }

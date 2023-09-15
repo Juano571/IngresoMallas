@@ -104,6 +104,7 @@ export default function TableDataEntry() {
         }
     }
     setRowSData()
+    console.log(rowsData)
 
     //useStates utilizados para el manejo de páginas
     const [page, setPage] = React.useState(0);

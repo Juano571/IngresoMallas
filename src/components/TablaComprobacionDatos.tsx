@@ -319,9 +319,6 @@ export default function TableDataEntry() {
 
     //useStates
     const [rows, setRows] = React.useState(rowsData);
-    const [data, setData] = React.useState<DataEstimacion[]>([]);
-
-
 
     // Manejo del arreglo de datos de los input
     const { dataEstimacionGradosContext } = useDataContext();

@@ -28,7 +28,6 @@ const App = () => {
                             <ComprobacionDatos />
                         </>
                     }></Route>
-
                 </Routes>
             </div>
     )
