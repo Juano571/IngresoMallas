@@ -14,6 +14,24 @@ const IngresoDatos: React.FC = () => {
     //Maneja el barrado del venture
     const handleBorrarVenture = () => {
         console.log('Vanture borrado');
+        // fetch('http://localhost:3000/BorrarVenture', {
+        //     method: 'DELETE',
+        // })
+        //     .then((response) => {
+        //         if (!response.ok) {
+        //             throw new Error(`Error de red: ${response.status}`);
+        //         }
+        //         return response.json();
+        //     })
+        //     .then((data) => {
+        //         // La solicitud se completó con éxito
+        //         console.log('Solicitud DELETE exitosa');
+        //         console.log('Respuesta del servidor:', data);
+        //     })
+        //     .catch((error) => {
+        //         // La solicitud falló o hubo un error de red
+        //         console.error('Error al realizar la solicitud DELETE:', error);
+        //     });
     }
 
     //Creacion y configuracion del modal
@@ -90,7 +108,7 @@ const IngresoDatos: React.FC = () => {
                                 <div>
                                     <button className='relative p-1 w-10 mr-5 rounded-lg bg-gray-800 text-white' onClick={
                                         () => {
-                                            if (isVenture == false) {
+                                            if (isVenture === false) {
                                                 handleBorrarDatosInput()
                                             } else {
                                                 handleBorrarVenture()

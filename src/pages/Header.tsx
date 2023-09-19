@@ -1,11 +1,6 @@
 import React from 'react';
 import { Outlet, Link } from 'react-router-dom'
 
-interface NavItemProps {
-    title: string;
-    active: boolean;
-}
-
 interface HeaderProps {
     activeSection1: boolean;
     activeSection2: boolean;

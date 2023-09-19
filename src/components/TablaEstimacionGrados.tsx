@@ -9,9 +9,7 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import { AiFillCaretDown } from "react-icons/ai";
 import Filter from './Filter';
-import { v4 as uuidv4 } from 'uuid';
 import { useDataContext } from '../hooks/useDataContext';
-import { Data, DataEstimacion } from '../context/DataContext'
 
 //Interfaz para definir los campos de la columna
 interface Column {
@@ -74,150 +72,41 @@ const columns: readonly Column[] = [
     }
 ];
 
-const generateUniqueId = (): string => {
-    return uuidv4();
-}
-
-function createData(
-    codigo_cpr: string,
-    producto: string,
-    variedad: string,
-    tallos_por_bunch: number,
-    factor_porcentual_3_2: number,
-    fecha: string,
-    estimacion_ramos_grados: string,
-    estimacion_tallos_grados: string,
-): Data {
-    return {
-        codigo_cpr: codigo_cpr,
-        producto: producto,
-        variedad: variedad,
-        tallos_por_bunch: tallos_por_bunch,
-        factor_porcentual_3_2: factor_porcentual_3_2,
-        fecha: fecha,
-        estimacion_ramos_grados: estimacion_ramos_grados,
-        estimacion_tallos_grados: estimacion_tallos_grados,
-        id: generateUniqueId()
-    };
-}
-
-function moveDataEstimacionGrados(
-    sku_pv: string,
-    sku_pv_ventas: string,
-    grados: string,
-    estimacion_ramos_grados: string,
-    estimacion_tallos_grados: string,
-    codigo_cpr: string,
-    fecha1TPO: string,
-    fechaTPO: string,
-    cantidadTPO: string,
-): DataEstimacion {
-    return {
-        sku_pv: sku_pv,
-        sku_pv_ventas: sku_pv_ventas,
-        grados: grados,
-        estimacion_ramos_grados: estimacion_ramos_grados,
-        estimacion_tallos_grados: estimacion_tallos_grados,
-        codigo_cpr: codigo_cpr,
-        fecha1TPO: fecha1TPO,
-        fechaTPO: fechaTPO,
-        cantidadTPO: cantidadTPO,
-    }
-}
-
-const rowsData: Data[] = [];
-const rowsCalculatedValues: DataEstimacion[] = [];
-let isFull: boolean = false;
-
-
 export default function TableDataEntry() {
 
     //UseState para data del  backend
-    const [rows, setRows] = React.useState(rowsData);
-    const [data, setData] = React.useState([]);
-
-    //Conexión con el servidor backend
-    React.useEffect(() => {
-        //Get de datos para la tabla ingreso datos
-        if (isFull === false) {
-            fetch("http://localhost:3000/tableEstimacionGrados")
-                .then((res) => res.json())
-                .then((response) => setData(response))
-            isFull = true
-        }
-    }, [])
+    const [rows, setRows] = React.useState([]);
 
     //Manejo del arreglo de datos de los input
     const { dataInputContext, setDataEstimacionGradosContext } = useDataContext();
 
-    //Funcion para calcular la estimacion ramos grado
-    const calcularEstimacionRamosGrado = (cantidad: string, tallosMalla: string, factorPorcentual: string, tallosBunch: string): string => {
 
-        if (cantidad === undefined) {
-            cantidad = '0';
-        }
+    //Conexión con el servidor backend
+    React.useEffect(() => {
+        //Post de los datos del DataInputContext
+        fetch("http://localhost:3000/obtenerDataInput", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(dataInputContext),
+        }).then((res) => {
+            if (res.ok) {
+                console.log('Petición resuelta con éxito');
+                fetch("http://localhost:3000/tableEstimacionGrados")
+                    .then((res) => res.json())
+                    .then((response) => {
+                        setDataEstimacionGradosContext(response[0]);
+                        setRows(response[1]);
+                    })
+            } else {
+                console.log(res.statusText);
+            }
+        }).catch((err) => {
+            console.log(err)
+        });
+    }, [])
 
-        if (tallosMalla === null) {
-            tallosMalla = '0'
-        }
-
-        const valorEstimacionRamos: number = Math.round((((parseInt(cantidad) * parseInt(tallosMalla)) * parseFloat(factorPorcentual)) / parseInt(tallosBunch)) * 0.9);
-
-        return valorEstimacionRamos.toString();
-    }
-
-    const calcularEstimacionTallosGrados = (estimacionRamos: string, tallosBunch: string): string => {
-        const estimacionTallos: number = parseInt(estimacionRamos) * parseInt(tallosBunch);
-        return estimacionTallos.toString();
-    }
-
-    //Agregar los valores obtenidos del get a un arreglo
-    const setRowSData = () => {
-        if (rowsData.length === 0) {
-            data.map((element) => {
-
-                const fechaNormal: string = element['Fecha'];
-                const fechaPartes: string[] = fechaNormal.split('T');
-
-                const cantidad = dataInputContext.find((contextElement) => contextElement.concatenacion === `${element['SKU_PV']}${fechaPartes[0]}`)?.value || '0';
-
-                const estimacionRamos: string = calcularEstimacionRamosGrado(
-                    cantidad,
-                    element['Tallos_por_Malla'],
-                    element['Factor_Porcentual_3_2'],
-                    element['Tallos_por_Bunch']);
-
-                const estimacionTallos: string = calcularEstimacionTallosGrados(estimacionRamos, element['Tallos_por_Bunch']);
-
-                rowsCalculatedValues.push(
-                    moveDataEstimacionGrados(
-                        element['SKU_PV'],
-                        element['SKU_PV_VENTAS'],
-                        element['Grados'],
-                        estimacionRamos,
-                        estimacionTallos,
-                        element['CODIGO_CPR'],
-                        fechaPartes[0],
-                        fechaPartes[0],
-                        cantidad));
-
-                rowsData.push(
-                    createData(
-                        element['CODIGO_CPR'],
-                        element['Producto'],
-                        element['Variedad'],
-                        element['Tallos_por_Bunch'],
-                        element['Factor_Porcentual_3_2'],
-                        fechaPartes[0],
-                        estimacionRamos,
-                        estimacionTallos));
-            })
-        }
-    }
-
-
-    setRowSData();
-    setDataEstimacionGradosContext(rowsCalculatedValues);
 
     //useStates utilizados para el manejo de páginas
     const [page, setPage] = React.useState(0);
@@ -241,44 +130,44 @@ export default function TableDataEntry() {
         let index: number = columns.findIndex((column) => column.label === label);
         switch (index) {
             case 0:
-                const codigos_cprUnicos = new Set(rows.map((row) => row.codigo_cpr))
+                const codigos_cprUnicos = new Set(rows.map((row) => row['codigo_cpr']))
                 const codigosUnicosArreglo: string[] = []
                 codigos_cprUnicos.forEach((codigoUnico) => codigosUnicosArreglo.push(codigoUnico))
                 return codigosUnicosArreglo
             case 1:
-                const productosUnicos = new Set(rows.map((row) => row.producto))
+                const productosUnicos = new Set(rows.map((row) => row['producto']))
                 const productosUnicosArreglo: string[] = []
                 productosUnicos.forEach((productoUnico) => productosUnicosArreglo.push(productoUnico))
                 return productosUnicosArreglo
             case 2:
-                const variedadesUnicas = new Set(rows.map((row) => row.variedad))
+                const variedadesUnicas = new Set(rows.map((row) => row['variedad']))
                 const variedadesUnicasArreglo: string[] = []
                 variedadesUnicas.forEach((variedadUnica) => variedadesUnicasArreglo.push(variedadUnica))
                 return variedadesUnicasArreglo
             case 3:
-                const tallosBunchUnicos = new Set(rows.map((row) => row.tallos_por_bunch))
+                const tallosBunchUnicos = new Set(rows.map((row) => row['tallos_por_bunch']))
                 const tallosBunchArreglo: string[] = []
-                tallosBunchUnicos.forEach((talloBunchUnico) => tallosBunchArreglo.push(talloBunchUnico.toString()))
+                tallosBunchUnicos.forEach((talloBunchUnico) => tallosBunchArreglo.push(talloBunchUnico))
                 return tallosBunchArreglo
             case 4:
-                const factorPorcentualUnicos = new Set(rows.map((row) => row.factor_porcentual_3_2))
+                const factorPorcentualUnicos = new Set(rows.map((row) => row['factor_porcentual_3_2']))
                 const factorPorcentualArreglo: string[] = []
-                factorPorcentualUnicos.forEach((factorPorcentualUnico) => factorPorcentualArreglo.push(factorPorcentualUnico.toString()))
+                factorPorcentualUnicos.forEach((factorPorcentualUnico) => factorPorcentualArreglo.push(factorPorcentualUnico))
                 return factorPorcentualArreglo
             case 5:
-                const fechasUnicas = new Set(rows.map((row) => row.fecha))
+                const fechasUnicas = new Set(rows.map((row) => row['fecha']))
                 const fechasUnicasArreglo: string[] = []
                 fechasUnicas.forEach((fechaUnica) => fechasUnicasArreglo.push(fechaUnica))
                 return fechasUnicasArreglo
             case 6:
-                const estimacionRamosUnicos = new Set(rows.map((row) => row.estimacion_ramos_grados))
+                const estimacionRamosUnicos = new Set(rows.map((row) => row['estimacion_ramos_grados']))
                 const estimacionRamosUnicosArreglo: string[] = []
-                estimacionRamosUnicos.forEach((estimacionRamoUnico) => estimacionRamosUnicosArreglo.push(estimacionRamoUnico.toString()))
+                estimacionRamosUnicos.forEach((estimacionRamoUnico) => estimacionRamosUnicosArreglo.push(estimacionRamoUnico))
                 return estimacionRamosUnicosArreglo
             case 7:
-                const estimacionTallosUnicos = new Set(rows.map((row) => row.estimacion_tallos_grados))
+                const estimacionTallosUnicos = new Set(rows.map((row) => row['estimacion_tallos_grados']))
                 const estimacionTallosUnicosArreglo: string[] = []
-                estimacionTallosUnicos.forEach((estimacionTalloUnico) => estimacionTallosUnicosArreglo.push(estimacionTalloUnico.toString()))
+                estimacionTallosUnicos.forEach((estimacionTalloUnico) => estimacionTallosUnicosArreglo.push(estimacionTalloUnico))
                 return estimacionTallosUnicosArreglo
             default:
                 return []
@@ -325,7 +214,7 @@ export default function TableDataEntry() {
             return row
         }
 
-        if (filtersCodigoCPR.includes(row.codigo_cpr)) {
+        if (filtersCodigoCPR.includes(row['codigo_cpr'])) {
             return row
         }
     })
@@ -335,7 +224,7 @@ export default function TableDataEntry() {
             return row
         }
 
-        if (filtersProducto.includes(row.producto)) {
+        if (filtersProducto.includes(row['producto'])) {
             return row
         }
     })
@@ -345,7 +234,7 @@ export default function TableDataEntry() {
             return row
         }
 
-        if (filtersTallosPorBunch.includes(row.tallos_por_bunch.toString())) {
+        if (filtersTallosPorBunch.includes(row['tallos_por_bunch'])) {
             return row
         }
     })
@@ -355,7 +244,7 @@ export default function TableDataEntry() {
             return row
         }
 
-        if (filtersFactorPorcentual.includes(row.factor_porcentual_3_2.toString())) {
+        if (filtersFactorPorcentual.includes(row['factor_porcentual_3_2'])) {
             return row
         }
     })
@@ -365,7 +254,7 @@ export default function TableDataEntry() {
             return row
         }
 
-        if (filtersVariedad.includes(row.variedad)) {
+        if (filtersVariedad.includes(row['variedad'])) {
             return row
         }
     })
@@ -375,7 +264,7 @@ export default function TableDataEntry() {
             return row
         }
 
-        if (filtersFecha.includes(row.fecha)) {
+        if (filtersFecha.includes(row['fecha'])) {
             return row
         }
     })
@@ -385,7 +274,7 @@ export default function TableDataEntry() {
             return row
         }
 
-        if (filtersEstimacionRamos.includes(row.estimacion_ramos_grados.toString())) {
+        if (filtersEstimacionRamos.includes(row['estimacion_ramos_grados'])) {
             return row
         }
     })
@@ -394,12 +283,12 @@ export default function TableDataEntry() {
         if (filtersEstimacionTallos.length === 0) {
             return row
         }
-        if (filtersEstimacionTallos.includes(row.estimacion_tallos_grados.toString())) {
+        if (filtersEstimacionTallos.includes(row['estimacion_tallos_grados'])) {
             return row
         }
     })
 
-    const handleChangePage = (event: unknown, newPage: number) => {
+    const handleChangePage = (_event: unknown, newPage: number) => {
         setPage(newPage);
     };
 
@@ -446,7 +335,7 @@ export default function TableDataEntry() {
                             .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                             .map((row) => {
                                 return (
-                                    <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
+                                    <TableRow hover role="checkbox" tabIndex={-1} key={row['id']}>
                                         {columns.map((column) => {
                                             const value = row[column.id];
                                             return (

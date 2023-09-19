@@ -9,7 +9,7 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import { v4 as uuidv4 } from 'uuid';
 import { useDataContext } from '../hooks/useDataContext';
-import { DataEstimacion } from '../context/DataContext'
+// import { DataEstimacion } from '../context/DataContext'
 
 //Interfaz para definir los campos de la columna
 interface Column {
@@ -318,7 +318,7 @@ const arrayProduct: string[] = [
 export default function TableDataEntry() {
 
     //useStates
-    const [rows, setRows] = React.useState(rowsData);
+    const [rows, setRows] = React.useState<Data[]>([]);
 
     // Manejo del arreglo de datos de los input
     const { dataEstimacionGradosContext } = useDataContext();
@@ -332,6 +332,7 @@ export default function TableDataEntry() {
     //Agregar los valores obtenidos de la conexion con el backend a un arreglo
     const setRowSData = () => {
         if (rowsData.length === 0) {
+            let auxRows: Data[] = [];
             arrayProduct.map((element) => {
                 const dataFilter = filter(element);
                 let total: number = 0;
@@ -398,18 +399,21 @@ export default function TableDataEntry() {
                     }
                     total = veinte + cuarenta + cincuenta + cincuentaCinco + sesenta + sesenta + setenta + setentaCinco + ochenta + ochentaCinco + noventa + cien + cientoDiez + cientoVeinte + cientoTreinta;
                 })
-                rowsData.push(createData(element, veinte, cuarenta, cincuenta, cincuentaCinco, sesenta, setenta, setentaCinco, ochenta, ochentaCinco, noventa, cien, cientoDiez, cientoVeinte, cientoTreinta, total))
+                auxRows.push(createData(element, veinte, cuarenta, cincuenta, cincuentaCinco, sesenta, setenta, setentaCinco, ochenta, ochentaCinco, noventa, cien, cientoDiez, cientoVeinte, cientoTreinta, total))
             })
+            setRows(auxRows)
         }
     }
 
-    setRowSData()
+    React.useEffect(() => {
+        setRowSData()
+    }, [])
 
     //useStates utilizados para el manejo de páginas
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
-    const handleChangePage = (event: unknown, newPage: number) => {
+    const handleChangePage = (_event: unknown, newPage: number) => {
         setPage(newPage);
     };
 

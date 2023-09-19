@@ -1,6 +1,6 @@
 import { AiOutlineExport } from 'react-icons/ai';
 import { useDataContext } from '../hooks/useDataContext';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 
@@ -74,8 +74,7 @@ const rowsData: Data[] = [];
 
 const ButtonTxt = () => {
 
-    const [rows, setRows] = useState(rowsData);
-    let isModalRender: boolean;
+    const [rows, _setRows] = useState(rowsData);
 
     //Manejo del arreglo de datos de estimacion grados
     const { dataEstimacionGradosContext } = useDataContext();
@@ -148,9 +147,6 @@ const ButtonTxt = () => {
     //Variables para el manejo de la informacion del modal
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('')
-
-
-
 
     return (
         <>

@@ -22,6 +22,14 @@ export interface Data {
     id: string;
 }
 
+interface DataInput {
+    id: string;
+    producto: string;
+    variedad: string;
+    fecha: string;
+    concatenacion: string;
+}
+
 export interface DataEstimacion {
     sku_pv: string; 
     sku_pv_ventas: string;
@@ -39,6 +47,8 @@ export interface ContextProps {
     setDataInputContext: React.Dispatch<React.SetStateAction<CurrentValue[]>>,
     dataEstimacionGradosContext: DataEstimacion[],
     setDataEstimacionGradosContext: React.Dispatch<React.SetStateAction<DataEstimacion[]>>
+    rows: DataInput[],
+    setRows: React.Dispatch<React.SetStateAction<DataInput[]>>
     
 }
 
@@ -49,13 +59,16 @@ export const DataContext = createContext<ContextProps | null>(null);
 export const DataContextProvider = ({ children }: DataContextProviderProps) => {
     const [dataInputContext, setDataInputContext] = useState<CurrentValue[]>([])
     const [dataEstimacionGradosContext, setDataEstimacionGradosContext] = useState<DataEstimacion[]>([])
+    const [rows, setRows] = useState<DataInput[]>([]);
 
     return (
         <DataContext.Provider value={{
             dataInputContext: dataInputContext,
             setDataInputContext: setDataInputContext,
             dataEstimacionGradosContext: dataEstimacionGradosContext,
-            setDataEstimacionGradosContext: setDataEstimacionGradosContext
+            setDataEstimacionGradosContext: setDataEstimacionGradosContext,
+            rows: rows,
+            setRows: setRows
         }}>
             {children}
         </DataContext.Provider>

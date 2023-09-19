@@ -9,7 +9,6 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import { AiFillCaretDown } from "react-icons/ai";
 import Filter from './Filter'
-import { v4 as uuidv4 } from 'uuid';
 import { CurrentValue } from '../context/DataContext';
 import { useDataContext } from '../hooks/useDataContext';
 
@@ -50,61 +49,24 @@ const columns: readonly Column[] = [
     }
 ];
 
-//Método para generar un id único
-const generateUniqueId = (): string => {
-    return uuidv4();
-}
-
-//Definición de los datos que va a aceptar el arreglo rowsData
-interface Data {
-    id: string;
-    producto: string;
-    variedad: string;
-    fecha: string;
-    concatenacion: string;
-}
-
-function createData(
-    producto: string,
-    variedad: string,
-    fecha: string,
-    concatenacion: string,
-): Data {
-    return { id: generateUniqueId(), producto: producto, variedad: variedad, fecha: fecha, concatenacion: concatenacion };
-}
-
-
-const rowsData: Data[] = [];
-let isFull: boolean = false;
 
 export default function TableDataEntry() {
-
     //useStates
-    const [rows, setRows] = React.useState(rowsData);
-    const [data, setData] = React.useState([])
+    // const [rows, setRows] = React.useState<Data[]>([]);
 
+    // Manejo del arreglo de datos de los input
+    const { dataInputContext: dataContext, setDataInputContext: setDataContext, rows, setRows } = useDataContext();
 
     //Conexión con el servidor backend
     React.useEffect(() => {
-        //Get de datos para la tabla ingreso datos
-        if (isFull === false) {
+        if (rows.length === 0) {
+            //Get de datos para la tabla ingreso datos
             fetch("http://localhost:3000/tableIngresoDatos")
                 .then((res) => res.json())
-                .then((response) => setData(response))
-            isFull = true
+                .then((response) => setRows(response))
         }
     }, [])
 
-    //Agregar los valores obtenidos de la conexion con el backend a un arreglo
-    const setRowSData = () => {
-        if (rowsData.length === 0) {
-            data.map((element) => {
-                rowsData.push(createData(element['Producto'], element['Variedad'], element['Dia_Flor'], element['concatenacion']))
-            })
-        }
-    }
-    setRowSData()
-    console.log(rowsData)
 
     //useStates utilizados para el manejo de páginas
     const [page, setPage] = React.useState(0);
@@ -118,12 +80,7 @@ export default function TableDataEntry() {
     const [filtersProducto, setFiltersProducto] = React.useState<string[]>([]);
     const [filtersVariedad, setFiltersVariedad] = React.useState<string[]>([]);
     const [filtersFecha, setFiltersFecha] = React.useState<string[]>([]);
-    const [filtersCantidad, setFiltersCantidad] = React.useState<string[]>([]);
-
-    //useState para el manejo de los valores que se ingresan en cantidad
-    //const [dataContext, setDataContext] = React.useState<CurrentValue[]>([])
-
-
+    const [_filtersCantidad, setFiltersCantidad] = React.useState<string[]>([]);
 
     //Funcion para obtener los valores de cada comlumna para poner los en el filtro
     const getOptions = (label: string) => {
@@ -206,7 +163,7 @@ export default function TableDataEntry() {
     //     return filtersCantidad.includes(row.cantidad.toString())
     // })
 
-    const handleChangePage = (event: unknown, newPage: number) => {
+    const handleChangePage = (_event: unknown, newPage: number) => {
         setPage(newPage);
     };
 
@@ -223,8 +180,6 @@ export default function TableDataEntry() {
         setLabelSelected(label);
     }
 
-    // Manejo del arreglo de datos de los input
-    const { dataInputContext: dataContext, setDataInputContext: setDataContext } = useDataContext();
 
     //Funcion para obtener el valor de un input
     const handleInputChange = (id: string, event: React.ChangeEvent<HTMLInputElement>, concatenacion: string) => {
@@ -233,6 +188,7 @@ export default function TableDataEntry() {
             handleAddValue(id, value, concatenacion);
         }
 
+        //En caso de que la cantidad se borra se elimina el elemento del arreglo
         if (value === '') {
             let newInputValues: CurrentValue[] = dataContext.filter((element) => element.id !== id);
             setDataContext(newInputValues);
@@ -265,7 +221,7 @@ export default function TableDataEntry() {
         const elemento = dataContext.find((element) => element.id === id)
         return elemento?.value
     }
-    
+
     return (
         <Paper sx={{ width: '90%', overflow: 'hidden' }}>
             <TableContainer sx={{ maxHeight: 450, minHeight: 600 }}>
@@ -313,7 +269,7 @@ export default function TableDataEntry() {
                                                         <TableCell key={column.id} align={column.align}>
                                                             <input id={row.id} className='border border-gray-800 rounded-lg w-36 h-6 text-center' type='number' placeholder={handleValueInput(row.id)} onChange={(e) => {
                                                                 handleInputChange(row.id, e, row.concatenacion)
-                                                            }}/>
+                                                            }} />
                                                         </TableCell>
                                                     );
                                                 }
