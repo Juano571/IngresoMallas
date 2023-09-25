@@ -20,6 +20,7 @@ interface Column {
     format?: (value: number) => string;
 }
 
+//Agregar columna tallos por malla, hacer más pequeña la tabla, mejorar los filtros, agregar total total, Cambiar filtros para escoger producto y solo salgan las variedades del producto
 //Declaración de la columnas a crear
 const columns: readonly Column[] = [
     {
@@ -92,6 +93,7 @@ export default function TableDataEntry() {
             body: JSON.stringify(dataInputContext),
         }).then((res) => {
             if (res.ok) {
+                // console.log(dataInputContext)
                 console.log('Petición resuelta con éxito');
                 fetch("http://localhost:3000/tableEstimacionGrados")
                     .then((res) => res.json())
@@ -321,8 +323,8 @@ export default function TableDataEntry() {
                                         {column.label}
                                         <button onClick={() => handleShowFilter(column.label)} className='relative'><AiFillCaretDown />
                                             {labelSelected === column.label && (
-                                                <Filter options={getOptions(labelSelected)} setFilters={setFilters} filters={filters} style='absolute bg-gray-200 text-black py-2 px-4 rounded-lg h-64 overflow-auto' />
-                                            )
+                                                <Filter options={getOptions(labelSelected)} setFilters={setFilters} filters={filters} style='absolute bg-gray-200 top-10 text-black -left-28 py-2 px-4 rounded-lg h-32 w-auto overflow-auto' />
+                                                )
                                             }
                                         </button>
                                     </div>

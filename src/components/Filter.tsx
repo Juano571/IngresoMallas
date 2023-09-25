@@ -20,17 +20,24 @@ const Filter: React.FC<FilterProps> = ({ options, setFilters, filters, style }) 
         }
     }
 
-    // const handleFiltersSearch = () => {
-        
+    // const handleFiltersSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    //     const results = filters.filter((element) => {
+    //         const elementLowerCase = element.toLowerCase();
+    //         const valueToSearch = e.target.value.toLowerCase();
+
+    //         return elementLowerCase.includes(valueToSearch);
+    //     })
+
+    //     setFilters(results);
     // }
     return (
         //Caja de filtros
         <div className = {style}>
-            <input type='text' className='rounded-md' placeholder='Buscar'/>
+            {/* <input type='text' className='rounded-md' placeholder='Buscar'/> */}
             {options.map((option)=>(
-                <div key={option} className='flex gap-3 items-center justify-between'>
-                <label htmlFor={option}>{option}</label>
-                <input id={option} type="checkbox" onChange={handleFilters} value={option} checked = {filters.includes(option)} />
+                <div key={option} className='flex gap-3 justify-between pb-2 text-left w-auto'>
+                <label className='text-xs w-max' htmlFor={option}>{option}</label>
+                <input className='w-auto ' id={option} type="checkbox" onChange={handleFilters} value={option} checked = {filters.includes(option)} />
             </div>
             ))}
         </div>

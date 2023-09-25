@@ -55,7 +55,7 @@ export default function TableDataEntry() {
     // const [rows, setRows] = React.useState<Data[]>([]);
 
     // Manejo del arreglo de datos de los input
-    const { dataInputContext: dataContext, setDataInputContext: setDataContext, rows, setRows } = useDataContext();
+    const { dataInputContext, setDataInputContext, rows, setRows } = useDataContext();
 
     //Conexión con el servidor backend
     React.useEffect(() => {
@@ -66,7 +66,6 @@ export default function TableDataEntry() {
                 .then((response) => setRows(response))
         }
     }, [])
-
 
     //useStates utilizados para el manejo de páginas
     const [page, setPage] = React.useState(0);
@@ -190,35 +189,35 @@ export default function TableDataEntry() {
 
         //En caso de que la cantidad se borra se elimina el elemento del arreglo
         if (value === '') {
-            let newInputValues: CurrentValue[] = dataContext.filter((element) => element.id !== id);
-            setDataContext(newInputValues);
+            let newInputValues: CurrentValue[] = dataInputContext.filter((element) => element.id !== id);
+            setDataInputContext(newInputValues);
         }
     }
 
     //Funcion para agregar valores al arreglo de InputValues
     const handleAddValue = (id: string, value: string, concatenacion: string) => {
         let newInputValues: CurrentValue[];
-        if (dataContext.length !== 0) {
-            if (dataContext.some((item) => item.id === id)) {
-                newInputValues = dataContext.map((element) => {
+        if (dataInputContext.length !== 0) {
+            if (dataInputContext.some((item) => item.id === id)) {
+                newInputValues = dataInputContext.map((element) => {
                     if (element.id === id) {
                         return { id: id, value: value, concatenacion: concatenacion }
                     } else {
                         return element
                     }
                 })
-                setDataContext(newInputValues)
+                setDataInputContext(newInputValues)
             } else {
-                setDataContext([...dataContext, { id: id, value: value, concatenacion: concatenacion }]);
+                setDataInputContext([...dataInputContext, { id: id, value: value, concatenacion: concatenacion }]);
             }
         } else {
-            setDataContext([{ id: id, value: value, concatenacion: concatenacion }]);
+            setDataInputContext([{ id: id, value: value, concatenacion: concatenacion }]);
         }
     }
 
     //Funcion para mantener los valores ya agregados al cambiar de pestaña
     const handleValueInput = (id: string) => {
-        const elemento = dataContext.find((element) => element.id === id)
+        const elemento = dataInputContext.find((element) => element.id === id)
         return elemento?.value
     }
 
@@ -236,11 +235,14 @@ export default function TableDataEntry() {
                                 >
                                     <div className='flex gap-3 relative justify-center'>
                                         {column.label}
-                                        <button onClick={() => handleShowFilter(column.label)} className='relative'><AiFillCaretDown />
-                                            {labelSelected === column.label && (
-                                                <Filter options={getOptions(labelSelected)} setFilters={setFilters} filters={filters} style='absolute bg-gray-200 text-black py-2 px-4 rounded-lg h-64 overflow-auto' />
-                                            )}
-                                        </button>
+                                        {column.label !== 'Cantidad' && (
+                                            <button onClick={() => handleShowFilter(column.label)} className='relative'>
+                                                <AiFillCaretDown />
+                                                {labelSelected === column.label && (
+                                                    <Filter options={getOptions(labelSelected)} setFilters={setFilters} filters={filters} style='absolute bg-gray-200 top-10 text-black -left-36 py-2 px-4 rounded-lg h-32 w-auto overflow-auto'/>
+                                                )}
+                                            </button>
+                                        )}
                                     </div>
                                 </TableCell>
                             ))}
@@ -252,7 +254,7 @@ export default function TableDataEntry() {
                                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                 .map((row) => {
                                     return (
-                                        <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
+                                        <TableRow hover role="checkbox" tabIndex={-1} key={`${row.id}${row.fecha}`}>
                                             {columns.map((column) => {
                                                 if (column.id !== 'cantidad') {
                                                     const value = row[column.id];
@@ -268,6 +270,7 @@ export default function TableDataEntry() {
                                                     return (
                                                         <TableCell key={column.id} align={column.align}>
                                                             <input id={row.id} className='border border-gray-800 rounded-lg w-36 h-6 text-center' type='number' placeholder={handleValueInput(row.id)} onChange={(e) => {
+                                                                e.preventDefault();
                                                                 handleInputChange(row.id, e, row.concatenacion)
                                                             }} />
                                                         </TableCell>

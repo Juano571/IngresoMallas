@@ -333,6 +333,21 @@ export default function TableDataEntry() {
     const setRowSData = () => {
         if (rowsData.length === 0) {
             let auxRows: Data[] = [];
+            let Ttotal: number = 0;
+            let totalVeinte: number = 0;
+            let totalCuarenta: number = 0;
+            let totalCincuenta: number = 0;
+            let totalCincuentaCinco: number = 0;
+            let totalSesenta: number = 0;
+            let totalSetenta: number = 0;
+            let totalSetentaCinco: number = 0;
+            let totalOchenta: number = 0;
+            let totalOchentaCinco: number = 0;
+            let totalNoventa: number = 0;
+            let totalCien: number = 0;
+            let totalCientoDiez: number = 0;
+            let totalCientoVeinte: number = 0;
+            let totalCientoTreinta: number = 0;
             arrayProduct.map((element) => {
                 const dataFilter = filter(element);
                 let total: number = 0;
@@ -354,52 +369,87 @@ export default function TableDataEntry() {
                     switch (dato.grados) {
                         case '20':
                             veinte += parseInt(dato.estimacion_ramos_grados);
+                            totalVeinte += parseInt(dato.estimacion_ramos_grados);
                             break;
                         case '40':
                             cuarenta += parseInt(dato.estimacion_ramos_grados);
+                            totalCuarenta += parseInt(dato.estimacion_ramos_grados);
                             break;
                         case '50':
                             cincuenta += parseInt(dato.estimacion_ramos_grados);
+                            totalCincuenta += parseInt(dato.estimacion_ramos_grados);
                             break;
                         case '55':
                             cincuentaCinco += parseInt(dato.estimacion_ramos_grados);
+                            totalCincuentaCinco += parseInt(dato.estimacion_ramos_grados);
                             break;
                         case '60':
                             sesenta += parseInt(dato.estimacion_ramos_grados);
+                            totalSesenta += parseInt(dato.estimacion_ramos_grados);
                             break;
                         case '70':
                             setenta += parseInt(dato.estimacion_ramos_grados);
+                            totalSetenta += parseInt(dato.estimacion_ramos_grados);
                             break;
                         case '75':
                             setentaCinco += parseInt(dato.estimacion_ramos_grados);
+                            totalSetentaCinco += parseInt(dato.estimacion_ramos_grados);
                             break;
                         case '80':
                             ochenta += parseInt(dato.estimacion_ramos_grados);
+                            totalOchenta += parseInt(dato.estimacion_ramos_grados);
                             break;
                         case '85':
                             ochentaCinco += parseInt(dato.estimacion_ramos_grados);
+                            totalOchentaCinco += parseInt(dato.estimacion_ramos_grados);
                             break;
                         case '90':
                             noventa += parseInt(dato.estimacion_ramos_grados);
+                            totalNoventa += parseInt(dato.estimacion_ramos_grados);
                             break;
                         case '100':
                             cien += parseInt(dato.estimacion_ramos_grados);
+                            totalCien += parseInt(dato.estimacion_ramos_grados);
                             break;
                         case '110':
                             cientoDiez += parseInt(dato.estimacion_ramos_grados);
+                            totalCientoDiez += parseInt(dato.estimacion_ramos_grados);
                             break;
                         case '120':
                             cientoVeinte += parseInt(dato.estimacion_ramos_grados);
+                            totalCientoVeinte += parseInt(dato.estimacion_ramos_grados);
                             break;
                         case '130':
                             cientoTreinta += parseInt(dato.estimacion_ramos_grados);
+                            totalCientoTreinta += parseInt(dato.estimacion_ramos_grados);
                             break;
                         default:
                             break;
                     }
                     total = veinte + cuarenta + cincuenta + cincuentaCinco + sesenta + sesenta + setenta + setentaCinco + ochenta + ochentaCinco + noventa + cien + cientoDiez + cientoVeinte + cientoTreinta;
+                    Ttotal = totalVeinte + totalCuarenta + totalCincuenta + totalCincuentaCinco + totalSesenta + totalSetenta + totalSetentaCinco + totalOchenta + totalOchentaCinco + totalNoventa + totalCien + totalCientoDiez + totalCientoVeinte + totalCientoTreinta;
                 })
-                auxRows.push(createData(element, veinte, cuarenta, cincuenta, cincuentaCinco, sesenta, setenta, setentaCinco, ochenta, ochentaCinco, noventa, cien, cientoDiez, cientoVeinte, cientoTreinta, total))
+                if (element.includes('TOTAL')) {
+                    auxRows.push(createData(element, totalVeinte, totalCuarenta, totalCincuenta, totalCincuentaCinco, totalSesenta, totalSetenta, totalSetentaCinco, totalOchenta, totalOchentaCinco, totalNoventa, totalCien, totalCientoDiez, totalCientoVeinte, totalCientoTreinta, Ttotal))
+                    Ttotal = 0;
+                    totalVeinte = 0;
+                    totalCuarenta = 0;
+                    totalCincuenta = 0;
+                    totalCincuentaCinco = 0;
+                    totalSesenta = 0;
+                    totalSetenta = 0;
+                    totalSetentaCinco = 0;
+                    totalOchenta = 0;
+                    totalOchentaCinco = 0;
+                    totalNoventa = 0;
+                    totalCien = 0;
+                    totalCientoDiez = 0;
+                    totalCientoVeinte = 0;
+                    totalCientoTreinta = 0;
+                } else {
+                    auxRows.push(createData(element, veinte, cuarenta, cincuenta, cincuentaCinco, sesenta, setenta, setentaCinco, ochenta, ochentaCinco, noventa, cien, cientoDiez, cientoVeinte, cientoTreinta, total))
+                }
+
             })
             setRows(auxRows)
         }
